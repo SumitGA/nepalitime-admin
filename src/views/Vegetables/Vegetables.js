@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Badge, Card, CardBody, CardHeader, Col, Row, Table } from 'reactstrap';
 import axios from 'axios';
 import moment from 'moment';
+import ImageUploader from '../Widgets/ImageUploader.js';
 
 // import vegetablesData from './VegetablesData'
 
@@ -19,13 +20,9 @@ const VegetableRow = (props) => {
       <td>{vegetable.unit}</td>
       <td>{vegetable.type}</td>
       <td>{moment(vegetable.date).format('LL')}</td>
-      <td><Link onClick={() => uploadImage(vegetable)}><Badge color={'primary'}>Upload Image</Badge></Link></td>
+      <td><Link to={vegetableLink} component={ImageUploader}><Badge color={'primary'}>Upload Image</Badge></Link></td>
     </tr>
   )
-}
-
-const uploadImage = (vegetable) => {
-
 }
 
 class Vegetables extends Component {
