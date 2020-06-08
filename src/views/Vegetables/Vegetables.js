@@ -5,8 +5,6 @@ import axios from 'axios';
 import moment from 'moment';
 import ImageUploader from '../Widgets/ImageUploader.js';
 
-// import vegetablesData from './VegetablesData'
-
 const VegetableRow = (props) => {
   const vegetable = props.vegetable
   const vegetableLink = `/vegetables/${vegetable._id}`
@@ -20,20 +18,33 @@ const VegetableRow = (props) => {
       <td>{vegetable.unit}</td>
       <td>{vegetable.type}</td>
       <td>{moment(vegetable.date).format('LL')}</td>
-      <td><Link to={vegetableLink} component={ImageUploader}><Badge color={'primary'}>Upload Image</Badge></Link></td>
+      <td><Link to={vegetableLink} component={() => <ImageUploader params={`${vegetable._id}`} updateVegetable={props.updateVegetable} /> } onLoad={(e) => this.uploadHandler()}><Badge color={'primary'}>Upload Image</Badge></Link></td>
+      <td>
+        { vegetable.image_url !== '' ?
+        <img src={vegetable.image_url} alt={vegetable.name} width="120px" height="120px"/>
+            :
+          <span>No Image</span>
+        }
+      </td>
     </tr>
   )
 }
 
 class Vegetables extends Component {
-  state = {
-    vegetables: []
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      vegetables: [],
+      imageUpdated: false
+    }
+
   }
 
-  componentDidMount = () => {
+  getVegetablesList = () => {
     axios({
       method: 'get',
-      url: 'https://nepalitime.herokuapp.com/app/api/vegetables'
+      url: 'http://localhost:5000/app/api/vegetables/'
     })
       .then(res => {
 				this.setState({vegetables: res.data.data})
@@ -42,9 +53,12 @@ class Vegetables extends Component {
       })
   }
 
-  render() {
+  componentDidMount = () => {
+    this.getVegetablesList();
+  }
 
-    const vegetableList = this.state.vegetables.slice(0,10)
+  render() {
+    const vegetableList = this.state.vegetables.slice(0,20)
     return (
       <div className="animated fadeIn">
         { vegetableList.length > 0 ?
@@ -65,12 +79,13 @@ class Vegetables extends Component {
                       <th scope="col">Unit</th>
                       <th scope="col">Type</th>
                       <th scope="col">Date</th>
+                      <th scope="col">Image Upload</th>
                       <th scope="col">Image</th>
                     </tr>
                   </thead>
                   <tbody>
                     {vegetableList.map((vegetable, index) =>
-                      <VegetableRow key={index} vegetables={this.state.vegetables} vegetable={vegetable}/>
+                    <VegetableRow key={index} updateVegetable={this.getVegetablesList} vegetables={this.state.vegetables} vegetable={vegetable}/>
                     )}
                   </tbody>
                 </Table>

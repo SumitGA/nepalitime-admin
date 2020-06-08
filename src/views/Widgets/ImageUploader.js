@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import { Row, Col } from 'reactstrap';
-import FormData from 'form-data';
-var fs = require('fs');
 
 class ImageUploader extends Component {
   state = {
-      message:''
-    };
+    message:'',
+    uploadStatus: '',
+    progressValue: 0
+  };
 
   getImage = e => {
       const files = e.target.files;
@@ -15,17 +15,37 @@ class ImageUploader extends Component {
         const file = files[0];
         this.setState({ file });
       }
-    };
+  };
+
+  updateImageUrl = (url) => {
+    this.setState({progressValue: 80})
+    axios({
+      method: 'PUT',
+      url: `http://localhost:5000/app/api/vegetables/updateImageUrl`,
+      data: {
+        id: this.props.params,
+        imageUrl: url
+       }
+    }).then(res => {
+      if(res.status === 200) {
+        this.setState({progressValue: 100})
+        this.setState({ uploadStatus: 'success' })
+        this.setState({message: 'Upload Successful'})
+      } else {
+        this.setState({message: 'Upload Failed'})
+      }
+    })
+  }
 
   uploadFile = e => {
+    this.setState({progressValue: 10})
     e.preventDefault();
     const { file } = this.state;
-    this.setState({message:'Uploading...'})
-    const contentType = file.type; // eg. image/jpeg or image/svg+xml
-    const formData = new FormData();
-    formData.append('filename', file.name);
-    formData.append('uploadedFile', file);
+    this.setState({uploadStatus: 'uploading'})
+    const extensionType = file.name.split('.')[1]
+    const contentType = `image/${extensionType}`;
     const generatePutUrl = 'http://localhost:5000/app/api/vegetables/imageUrl';
+    this.setState({progressValue: 20})
     const options = {
       params: {
         Key: file.name,
@@ -36,22 +56,32 @@ class ImageUploader extends Component {
       }
     };
 
+    this.setState({progressValue: 50})
     axios.get(generatePutUrl, options).then(res => {
+      let imageUrl = res.data.data.imageUrl
       if (res.status === 200) {
-      axios
-        .put(`${res.data.data}`, file, options)
-        .then(res => {
-          console.log(res)
-          this.setState({message:'Upload Successful'})
-          setTimeout(()=>{
-            this.setState({message:''});
-            document.querySelector('#upload-image').value='';
-            }, 2000)
+        axios
+          .put(res.data.data.getUrl, file, {
+            headers: {
+              'Content-Type': contentType
+            }
           })
-        .catch(err => {
-          this.setState({message:'Sorry, something went wrong'})
-          console.log('err', err);
-        });
+          .then(res => {
+            if(res.status === 200) {
+              this.setState({progressValue: 70})
+              this.updateImageUrl(imageUrl)
+              this.setState({message:'Upload Successful'})
+              this.setState({uploadStatus: 'Success'})
+              this.props.updateVegetable();
+            } else {
+              const err = "Sorry, something went wrong";
+              throw err;
+            }
+          })
+          .catch(err => {
+            console.log(err);
+            this.setState({message:'Sorry, something went wrong'})
+          });
       } else {
         this.setState({message: 'Sorry, something went wrong'})
       }
@@ -63,20 +93,28 @@ class ImageUploader extends Component {
         <React.Fragment>
           <Row>
             <Col xl={12}>
-              <input
-                id='upload-image'
-                type='file'
-                accept='image/*'
-                onChange={this.getImage}
-              />
-              <p>{this.state.message}</p>
-              <form onSubmit={this.uploadFile}>
-                <button className="btn btn-sm btn-brand btn-behance" id='file-upload-button'>
-                  <span className="cil-cloud-upload">
-                    Upload
-                  </span>
-                </button>
-              </form>
+              { this.state.uploadStatus !== 'uploading' ?
+              <div>
+                <input
+                  id={this.props.params}
+                  type='file'
+                  accept='image/*'
+                  onChange={this.getImage}
+                />
+                <p>{this.state.message}</p>
+                <form onSubmit={this.uploadFile}>
+                  <button id={this.props.params} className="btn btn-sm btn-brand btn-behance">
+                    <span className="cil-cloud-upload">
+                      Upload
+                    </span>
+                  </button>
+                </form>
+              </div>
+                  :
+              <div className="progress">
+                <div className="progress-bar progress-bar-striped" role="progressbar" style={{width: "10%"}} aria-valuenow="10" aria-valuemin="0" aria-valuemax={this.state.progressValue}>Uploading</div>
+              </div>
+              }
             </Col>
           </Row>
         </React.Fragment>
