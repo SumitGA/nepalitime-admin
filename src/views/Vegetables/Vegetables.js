@@ -84,6 +84,7 @@ class Vegetables extends Component {
                     </tr>
                   </thead>
                   <tbody>
+                    {/* TODO: Should be modified so that the update on the component takes place*/}
                     {vegetableList.map((vegetable, index) =>
                     <VegetableRow key={index} updateVegetable={this.getVegetablesList} vegetables={this.state.vegetables} vegetable={vegetable}/>
                     )}
