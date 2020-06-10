@@ -1,19 +1,19 @@
 export default {
   items: [
     {
-      name: 'Dashboard',
-      url: '/dashboard',
-      icon: 'icon-speedometer',
+      name: "Dashboard",
+      url: "/dashboard",
+      icon: "icon-speedometer",
       badge: {
-        variant: 'info',
-        text: 'NEW',
+        variant: "info",
+        text: "NEW",
       },
     },
     {
       title: true,
-      name: 'Components',
+      name: "Components",
       wrapper: {
-        element: '',
+        element: "",
         attributes: {},
       },
     },
@@ -21,21 +21,26 @@ export default {
       divider: true,
     },
     {
-      name: 'Pages',
-      url: '/pages',
-      icon: 'icon-star',
+      name: "Pages",
+      url: "/pages",
+      icon: "icon-star",
       children: [
         {
-          name: 'Vegetables',
-          url: '/vegetables',
-          icon: 'icon-star',
+          name: "Vegetables",
+          url: "/vegetables",
+          icon: "icon-star",
+        },
+        {
+          name: "Notifications",
+          url: "/notifications",
+          icon: "icon-star",
         },
       ],
     },
     {
-      name: 'Disabled',
-      url: '/dashboard',
-      icon: 'icon-ban',
+      name: "Disabled",
+      url: "/dashboard",
+      icon: "icon-ban",
       attributes: { disabled: true },
     },
   ],
