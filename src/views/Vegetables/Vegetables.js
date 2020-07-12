@@ -18,7 +18,7 @@ const VegetableRow = (props) => {
       <td>{vegetable.unit}</td>
       <td>{vegetable.type}</td>
       <td>{moment(vegetable.date).format('LL')}</td>
-      <td><Link to={vegetableLink} component={() => <ImageUploader params={`${vegetable._id}`} updateVegetable={props.updateVegetable} /> } onLoad={(e) => this.uploadHandler()}><Badge color={'primary'}>Upload Image</Badge></Link></td>
+      <td><Link to={vegetableLink} component={() => <ImageUploader updateVegetables={props.updateVegetables} params={`${vegetable._id}`}  /> }><Badge color={'primary'}>Upload Image</Badge></Link></td>
       <td>
         { vegetable.image_url !== '' ?
         <img src={vegetable.image_url} alt={vegetable.name} width="120px" height="120px"/>
@@ -33,7 +33,6 @@ const VegetableRow = (props) => {
 class Vegetables extends Component {
   constructor(props) {
     super(props)
-
     this.state = {
       vegetables: [],
       imageUpdated: false
@@ -53,12 +52,17 @@ class Vegetables extends Component {
       })
   }
 
+  updateVegetables = () => {
+    this.setState({imageUpdated: true}, this.getVegetablesList());
+  }
+
   componentDidMount = () => {
     this.getVegetablesList();
   }
 
   render() {
     const vegetableList = this.state.vegetables.slice(0,20)
+
     return (
       <div className="animated fadeIn">
         { vegetableList.length > 0 ?
@@ -84,9 +88,8 @@ class Vegetables extends Component {
                     </tr>
                   </thead>
                   <tbody>
-                    {/* TODO: Should be modified so that the update on the component takes place*/}
                     {vegetableList.map((vegetable, index) =>
-                    <VegetableRow key={index} updateVegetable={this.getVegetablesList} vegetables={this.state.vegetables} vegetable={vegetable}/>
+                    <VegetableRow updateVegetables={this.updateVegetables} key={index} vegetable={vegetable}/>
                     )}
                   </tbody>
                 </Table>
